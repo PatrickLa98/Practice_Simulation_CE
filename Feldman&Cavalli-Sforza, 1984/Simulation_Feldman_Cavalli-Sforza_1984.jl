@@ -218,7 +218,41 @@
         0.25, 0.25, 0.25, 0.25
     )
 
-    
+    ## Equilibrium y with mutation, conditioned on allele frequency in equilibrium
+    Equation7 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+     λ34 = β3 + β4 - 1
+     equil_p = v/(μ + v)
+     H = (1 - β2)*(1 - β3) - (1 - β1)*(1 - β4)
+     equil_y = (1 - β4)/(1 - λ34) + equil_p*H
 
+     return equil_y
+    end
 
+    Equation7(
+        0.001, 0.001,
+        0.9, 0.9, 0.9, 0.9,
+        0.9, 0.9, 0.9, 0.9,
+        0.25, 0.25, 0.25, 0.25
+    )
 
+    ## Appendix A7
+    EquationA7 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+        Q(λ) = (λ^2) - λ*(λ12*(1 - μ) + λ34*(1 - v)) +
+                λ12*λ34*(1 - v)*(1 - μ) - γ12*γ34*μ*v
+        equil_p = v/(μ + v)
+        equil_y = (Q(1)^-1)*((1 - β2*equil_p*(1 - μ) - γ2*equil_p*μ - β4*(1 - equil_p)*(1 - v) -
+                γ4*(1 - equil_p)*v)*(2 - μ - v) - ((β1 + β2)*(1 - μ)*(1 - equil_p) +
+                (β3 + β4)*(1 - v)*equil_p - μ*equil_p*(γ1 + γ2 + γ3 + γ4)) +
+                (β4*(1 - v) + γ2*v)*((β1 + β2)*(1 - μ)*(1 - equil_p) -
+                (γ3 + γ4)*μ*equil_p) + (β2*(1 - μ) + γ4*μ)*((β3 + β4)*(1 - v)*equil_p -
+                (γ1 + γ2)*v*(1 - equil_p)))
+    end
+
+    EquationA7(
+        0.001, 0.001,
+        0.9, 0.9, 0.9, 0.9,
+        0.9, 0.9, 0.9, 0.9,
+        0.25, 0.25, 0.25, 0.25
+    )
+    ## something is not right, decreaseing beta1 (the transmission probability of cultural variant 1 from A parent to A child) increases the equilibrium frequency of culturalvariant 1
+    ## check equation A7 again
