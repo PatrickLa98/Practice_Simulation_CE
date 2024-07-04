@@ -1,3 +1,5 @@
+using Plots
+using Distributions
 
 cd("/Users/patricklauer/Documents/GitHub/Practice_Simulation_CE/Feldman&Cavalli-Sforza, 1984/")
 
@@ -6,10 +8,10 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
 
     ## Iterating through generations and recording cultural variant frequencies and gene-culture disequilibrium
 
-    μ = 0.0001
-    v = 0.0001
-    ## A more likely to transmit 2
-    β1 = 0.5
+    μ = 0.01
+    v = 0.01
+    
+    β1 = 0.5    ## A more likely to transmit 2
     β2 = 0.9        
     β3 = 0.9
     β4 = 0.9
@@ -40,28 +42,6 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
         push!(D_num, x1*x4 - x2*x3)
     end
 
-    using Plots
-
-    ## frequency of cultural variant1 over time
-    plot(collect(0:n_gen),
-         y_num,
-         line = (1, :black),
-         marker = (:circle, 4, :black),
-         #ylims = (0.3,0.52),
-         xlabel = "time in generations",
-         ylabel = "frequency of cultural variant1",
-         legend = false
-         )
-    ## gene-culture disequilibrium over time
-    plot(collect(0:n_gen),
-        D,
-        line = (1, :black),
-        marker = (:circle, 4, :black),
-        ylims = (-0.1,0.01),
-        xlabel = "time in generations",
-        ylabel = "gene-culture disequilibrium",
-        legend = false
-        )
 
   ## compare the equilibrium frequencies/disequilibrium found by iteration 
   ## with the equilibrium frequencies in postulated mathematical models
@@ -76,19 +56,16 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
     ## only works with neglectable mutation
     Equation7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4) 
     ## doesnt work
-
     EquationA7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
     ## works best 
     
     ## gene-culture disequilibrium
     Equation6c(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
     ## doesn't match
-
     EquationA8(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
     ## matches
 
 ## ABM of model 1
-using Distributions
 
 # number of individuals
 n_pop = 10000
@@ -108,15 +85,39 @@ pop = genotype_culture[rand(Categorical(freq), n_pop)]
 ## a2 to a2
 β4 = 0.9
 
+## mutation rates
+
+μ = 0.001
+v = 0.001
+
 n_generations = 100
 ## initial frequency of cultural variant 1
 x1 = sum(pop .== 1)/n_pop
 x3 = sum(pop .== 3)/n_pop
 y = [x1 + x3]
+
 for g in 1:n_generations
 
     for i in 1:length(pop)
 
+     ## replace parent genotypes according to mutation rates μ or values
+        ## genotype A to a
+        if pop[i] in [1, 2]
+
+            choice = [pop[i], pop[i] + 2] # either remain same genotype or convert genotype (culture remains the same)
+            prob = [1 - μ, μ]
+            pop[i] = choice[rand(Categorical(prob))]    #convert offspring to genotype a with probability μ
+        ## genotype a to A
+        elseif pop[i] in [3, 4]
+
+            choice = [pop[i], pop[i] + 2] # either remain same genotype or convert genotype (culture remains the same)
+            prob = [1 - v, v]
+            pop[i] = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+        end
+
+
+
+     ## replace or keep parents culture according to transmission coefficients
         if pop[i] == 1
             ## replace parent individual with offspring individual that has same culture with prob β1 
             choice = [1, 2]
@@ -132,7 +133,7 @@ for g in 1:n_generations
         elseif pop[i] == 3
             ## replace parent individual with offspring individual that has same culture with prob β3 
             choice = [3, 4]
-            prob = [β3, (1 - β4)]
+            prob = [β3, (1 - β3)]
 
             pop[i] = choice[rand(Categorical(prob))]
         elseif pop[i] == 4
@@ -150,15 +151,18 @@ for g in 1:n_generations
 
 end
 
-y
 
-
-plot(collect(0:n_gen),
-y,
-line = (1, :black),
-marker = (:circle, 4, :black),
-#ylims = (0.3,0.52),
-xlabel = "time in generations",
-ylabel = "frequency of cultural variant1",
-legend = false
+ plot(
+    collect(0:n_gen), y,
+    line = (1, :red),
+    marker = (:circle, 4, :red),
+    xlabel = "time in generations",
+    ylabel = "frequency of cultural variant1",
+    label = "ABM"  
+)
+plot!(
+    collect(0:n_gen), y_num,
+    line = (1, :black),
+    marker = (:circle, 4, :black),
+    label = "Numeric"  
 )
