@@ -7,14 +7,16 @@
     ## 3. vertical with selection
 
 
-## 1. Vertical transmission with no selection
-
     ## pheno-genotype combinations A1, A2, a1, a2 with denoted frequencies x1, x2, x3, x4
     ## combinations lead to 8 transmission coefficients from parent to child (see Table 1 in paper) denoted as:
-    ## β (with respective subscript) for the transmission probabilities of same genotype parent and child,
-    ## γ (with respective subscript) for the transmission probabilities of different genotype parent and child
+        ## β (with respective subscript) for the transmission probabilities of same genotype parent and child,
+        ## γ (with respective subscript) for the transmission probabilities of different genotype parent and child
     ## mutations are denoted as μ for A to a and v for a to A
 
+
+##################################################################
+###### MODEL 1: VERTICAL TRANSMISSION WITH NO SELECTION ##########
+##################################################################
 
     ## next generation frequencies
     Equation1 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
@@ -122,17 +124,21 @@
 
     ## The eigenvalues of U can also be represented by the roots of the quadratic Q(λ) = 0
 
-    ## Equation 5
 
-    λ12 = β1 + β2 - 1
-    λ34 = β3 + β4 - 1
-    γ12 = γ1 + γ2 - 1
-    γ34 = γ3 + γ4 - 1
 
     ## Equation 4
-    Q(λ) = (λ^2) - λ*(λ12*(1 - μ) + λ34*(1 - v)) +
-            λ12*λ34*(1 - v)*(1 - μ) - γ12*γ34*μ*v
+    Equation4 = function(λ, μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
 
+            ## Equation 5
+            λ12 = β1 + β2 - 1
+            λ34 = β3 + β4 - 1
+            γ12 = γ1 + γ2 - 1
+            γ34 = γ3 + γ4 - 1
+
+        Q = (λ^2) - λ*(λ12*(1 - μ) + λ34*(1 - v)) +
+            λ12*λ34*(1 - v)*(1 - μ) - γ12*γ34*μ*v
+        return Q
+    end
    
     ## Equilibrium y if no mutation occurs
     Equation6a = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
@@ -177,6 +183,8 @@
     EquationA7 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         λ12 = β1 + β2 - 1
         λ34 = β3 + β4 - 1
+        γ12 = γ1 + γ2 -1
+        γ34 = γ3 + γ4 -1
         Q(λ) = (λ^2) - λ*(λ12*(1 - μ) + λ34*(1 - v)) +
                 λ12*λ34*(1 - v)*(1 - μ) - γ12*γ34*μ*v
         equil_p = v/(μ + v)
@@ -195,6 +203,8 @@
     EquationA8 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         λ12 = β1 + β2 - 1
         λ34 = β3 + β4 - 1
+        γ12 = γ1 + γ2 -1
+        γ34 = γ3 + γ4 -1
         Q(λ) = (λ^2) - λ*(λ12*(1 - μ) + λ34*(1 - v)) +
                     λ12*λ34*(1 - v)*(1 - μ) - γ12*γ34*μ*v
         equil_p = v/(μ + v)
@@ -207,3 +217,72 @@
     end
    
     
+##################################################################
+###### MODEL 2: OBLIQUE TRANSMISSION WITH NO SELECTION ###########
+##################################################################
+
+## Equation 8 genotype_culture frequencies next generation
+Equation8 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+
+    p = x1 + x2
+    next_p = (1 - μ)*p + v*(1 - p)
+
+    next_x1 =  next_p*(x1*β1 + x2*(1 - β2) + x3*γ3 + x4*(1 - γ4))
+    next_x2 = next_p*(x1*(1 - β1) + x2*β2 + x3*(1 -γ3) + x4*γ4)
+    next_x3 = (1 - next_p)*(x1*γ1 + x2*(1 - γ2) + x3*β3 + x4*(1 - β4))
+    next_x4 = (1 - next_p)*(x1*(1 - γ1) + x2*γ2 + x3*(1 - β3) + x4* β4) 
+    
+    return next_x1, next_x2, next_x3, next_x4
+end
+
+## Equation 9 convergent matrix for y and D
+Equation9 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+    
+    equil_p = v/(μ + v)
+    λ12 = β1 + β2 - 1
+    λ34 = β3 + β4 - 1
+    γ12 = γ1 + γ2 -1
+    γ34 = γ3 + γ4 -1
+
+    ## Coefficient (described in Appendix 9)
+    L1 = (equil_p^2)*λ12 + equil_p*(1 - equil_p)*(γ12 + γ34) + ((1 - equil_p)^2)*λ34
+    ## Coefficient (described in Appendix 10)
+    M1 = equil_p*(λ12 - γ34) + (1 - equil_p)*(γ12 - λ34)
+ 
+    ## Coefficient (described in Appendix 12)
+    S1 = equil_p*(1 - equil_p)*(λ12 + λ34 - γ12 - γ34)
+    ## Coefficient (described in Appendix 11)
+    R1 = equil_p*(1 - equil_p)*(γ34 - λ34) + equil_p * S1 
+    ## Convergence Matrix U
+    V = [L1 M1
+         R1 S1]
+
+    return V
+end
+
+## Equation 11 Equilibrium frequency of cultural variant 1 if βi = γi
+Equation11 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+    equil_p = v/(μ + v)
+    equil_y = (1 - β4 + equil_p*(β4 - β2))/(2 - β3 - β4 + equil_p*(β3 + β4 - β1 - β2))
+
+    return equil_y
+end
+
+## Equation 12 Equilibrium Gene-culture disequilibrium if no genetic differences in teaching abilities within each cultural state
+Equation12 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+    H = (1 - β2)*(1 - β3) - (1 - β1)*(1 - β4)
+    equil_p = v/(μ + v)
+    equil_D = equil_p*(1- equil_p)*H/(2 - β3 - β4 + equil_p*(β3 + β4 - β1 - β2))
+
+    return equil_D
+end
+
+## Equation 13 leading eigenvalue for special cases described for equation 11 and equation 12
+Equation13 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+    equil_p = v/(μ + v)
+    λ12 = β1 + β2 - 1
+    λ34 = β3 + β4 - 1
+    λI = equil_p*λ12 + (1 - equil_p)*λ34
+
+    return λI
+end
