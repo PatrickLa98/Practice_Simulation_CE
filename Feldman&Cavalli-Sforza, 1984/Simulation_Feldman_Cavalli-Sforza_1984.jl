@@ -22,26 +22,26 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
 
 ## mutation rates
     ## A to a
-    μ = 0.001
+    μ = 0.01
     ## a to A
     v = 0.001
 ## transmission coefficients
     ## A1 to A1
-    β1 = 0.9
+    β1 = 0.7
     ## A2 to A2
-    β2 = 0.4 
+    β2 = 0.9 
     ## a1 to a1
-    β3 = 0.4
+    β3 = 0.9
     ## a2 to a2
-    β4 = 0.4
+    β4 = 0.9
     ## A1 to a1
-    γ1 = 0.9 
+    γ1 = 0.6 
     ## A2 to a2
-    γ2 = 0.9
+    γ2 = 0.6
     ## a1 to A1
-    γ3 = 0.9
+    γ3 = 0.6
     ## a2 to A2
-    γ4 = 0.9
+    γ4 = 0.6
 ## starting frequency of geno-culturetype
     ## A1
     x1 = 0.25
@@ -78,6 +78,7 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
     end
 
 
+  #########################################################################
   ## NOT PART OF NUMERICAL SIMULATION, JUST COMPARE GIVEN EQUATIONS WITH RESULTS OF ITERATING THROUGH GENERATIONS NUMERICALLY
     ## compare the equilibrium frequencies/disequilibrium found by iteration 
     ## with the equilibrium frequencies in postulated mathematical models
@@ -86,19 +87,19 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
      x2 = 0.25
      x3 = 0.25
      x4 = 0.25
-        ## frequecy of cultural variant 1
-        Equation6a(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
-        ## only works with neglectable mutation
-        Equation7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4) 
-        ## doesnt work
-        EquationA7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
-        ## works best 
+        ## frequecy of cultural variant 1,
+            ## if no mutation is included
+            Equation6a(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+            ## dont fully understand under which condition this works
+            Equation7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4) 
+            ## works best! if neglecting quadratic terms in μ and v (also not sure what that means)
+            EquationA7(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         
         ## gene-culture disequilibrium
-        Equation6c(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
-        ## doesn't match
-        EquationA8(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
-        ## matches
+            ## if no mutation is included
+            Equation6c(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
+            ## works best! if neglecting quadratic terms in μ and v (also not sure what that means)
+            EquationA8(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
  #############################################################
 
 ## ABM of model 1
@@ -240,6 +241,7 @@ plot!(
         push!(D_num2, x1*x4 - x2*x3)
     end
 
+   ###################################################################################
    ## NOT PART OF NUMERICAL SIMULATION, JUST COMPARE GIVEN EQUATIONS WITH RESULTS OF ITERATING THROUGH GENERATIONS NUMERICALLY
     ## compare the equilibrium frequencies/disequilibrium found by iteration 
     ## with the equilibrium frequencies in postulated mathematical models
@@ -253,7 +255,7 @@ plot!(
 
     ## gene-culture disequilibrium if no genetic differences in teaching abilities within each cultural state
     Equation12(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
-#############################################################
+   #########################################################################
 
 ## ABM of model 2
 
