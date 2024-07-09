@@ -1,4 +1,5 @@
-## Numerical Simulation based on mathematical models in Cultural and biological evolutionary processes: Gene-culture disquilibrium, Feldman and Cavalli-Sforza, 1984
+## THIS SCRIPT PUTS THE EQUATIONS LISTED IN THE PAPER IN JULIA FUNCTIONS
+## THE FUNCTIONS ARE SUBSEQUENTLY USED IN Simulation_Feldman_Cavalli-Sforza_1984.jl 
 
 ## Goal model a dichotomous (2 variants)trait, genetic transmission diallellc haploid gene (A and a)
 ## Cultural transmission with 2 cultural states (indicated by subscripts 1 and 2):
@@ -286,3 +287,5 @@ Equation13 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3,
 
     return λI
 end
+
+
