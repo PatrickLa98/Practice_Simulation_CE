@@ -30,7 +30,6 @@
         return next_x1, next_x2, next_x3, next_x4
     end
     
-
     ## next generation Allele A frequency
     Equation2a = function(x1, x2, μ, v)
         ## frequency of allele A is 
@@ -40,8 +39,6 @@
     
         return next_p
     end
-
-    Equation2a(0.25, 0.25, 0.001, 0.001)
 
     ## next generation culutural state 1 frequency
     Equation2b = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
@@ -65,7 +62,6 @@
 
         return next_y
     end
-
     
     ## next generation gene culture Disequilibrium
     Equation2c = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
@@ -94,7 +90,6 @@
       return next_D
     end
 
-   
     ## Convergence properties of y (frequency of cultural variant 1) and D (gene cultural Disequilibrium) over time 
     ## can be represented by matrix U, given p (frequency of Allele A) is in equilibrium state
     Equation3 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
@@ -122,11 +117,7 @@
         return U
     end
 
-
     ## The eigenvalues of U can also be represented by the roots of the quadratic Q(λ) = 0
-
-
-
     ## Equation 4
     Equation4 = function(λ, μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
 
@@ -154,7 +145,6 @@
         return equil_y
     end
     
-    
     ## Equilibrium D if no mutation occurs
     Equation6c = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         ## if no mutation and no selection we assume p0 is p_equilibrium
@@ -168,7 +158,6 @@
         return equil_D
     end
 
-    
     ## Equilibrium y with mutation, conditioned on allele frequency in equilibrium
     Equation7 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
      λ34 = β3 + β4 - 1
@@ -179,7 +168,6 @@
      return equil_y
     end
 
-   
     ## Appendix A7
     EquationA7 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         λ12 = β1 + β2 - 1
@@ -198,8 +186,7 @@
                 
                 return equil_y
     end
-
-    
+ 
     ## Appendix A8
     EquationA8 = function (μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3, x4)
         λ12 = β1 + β2 - 1
@@ -296,7 +283,7 @@ end
 ## no mutation, γ values irrelevant
 
 ## Equation14 Recursion of geno-culturetype frequencies
-Equation14 = function(β1, β2, β3, β4, x1, x2, x3, x4)
+Equation14 = function(β1, β2, β3, β4, x1, x2, x3, x4, s)
     ## Equation 14e mean Fitness (ADDED ADDITIONAL BRACKETS THAT ARE MISSING IN PAPER)
     W = 1 - (s*((1 - β1)*x1 + (1 - β3)*x3) + (s*β2*x2 + s*β4*x4))
 

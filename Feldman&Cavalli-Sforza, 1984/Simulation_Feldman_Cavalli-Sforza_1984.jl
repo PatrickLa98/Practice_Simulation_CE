@@ -140,8 +140,6 @@ for g in 1:n_gen
             pop[i] = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
         end
 
-
-
      ## replace or keep parents culture according to transmission coefficients
         if pop[i] == 1
             ## replace parent individual with offspring individual that has same culture with prob β1 
@@ -386,4 +384,91 @@ plot!(
     label = "Numeric")
 
 
+##################################################################
+###### MODEL 3: VERTICAL TRANSMISSION WITH SELECTION #############
+##################################################################
 
+## no mutation, γ values irrelevant
+
+## selection coefficient
+s = 0.1
+
+## Numerical Simulation
+## Iterating through generations and recording cultural variant frequencies and gene-culture disequilibrium
+    
+    ## initial frequency of cultural variants
+    y_num3 = [x1 + x3]
+    ## initial gene-culture disequilibrium
+    D_num3 = [x1*x4 - x2*x3]
+
+    for i in 1:n_gen
+
+        ## set geno-pheontype frequencies to next generation
+        x1, x2, x3, x4 = Equation14(β1, β2, β3, β4, x1, x2, x3, x4, s) 
+        
+        ## record cultural variant frequencies 
+        push!(y_num3, x1 + x3)
+        ## record gene-culture disequilibrium
+        push!(D_num3, x1*x4 - x2*x3)
+    end
+
+## ABM of model 3
+
+## number of individuals
+n_pop = 1000
+## Genotype-Culture Combinations
+genotype_culture = [1, 2, 3, 4]
+## relative frequencies of genotype culture combinations x1, x2, x3, x4
+freq = [0.25, 0.25, 0.25, 0.25]
+## population according to frequency of genotype culture combinations
+pop = genotype_culture[rand(Categorical(freq), n_pop)]
+## initial frequency of cultural variant 1
+x1 = sum(pop .== 1)/n_pop
+x3 = sum(pop .== 3)/n_pop
+y_abm = [x1 + x3]
+## intital gene-culture disequilibrium
+x2 = sum(pop .== 2)/n_pop
+x4 = sum(pop .== 4)/n_pop
+D_abm = [x1*x4 - x2*x3]
+
+for g in 1:n_gen
+
+    for i in 1:length(pop)
+
+        ## replace or keep parents culture according to transmission coefficients
+        if pop[i] == 1
+            ## replace parent individual with offspring individual that has same culture with prob β1 
+            choice = [1, 2]
+            prob = [β1, (1 - β1)]
+
+            pop[i] = choice[rand(Categorical(prob))]
+        elseif pop[i] == 2
+            ## replace parent individual with offspring individual that has same culture with prob β2 
+            choice = [2, 1]
+            prob = [β2, (1 - β2)]
+
+            pop[i] = choice[rand(Categorical(prob))]
+        elseif pop[i] == 3
+            ## replace parent individual with offspring individual that has same culture with prob β3 
+            choice = [3, 4]
+            prob = [β3, (1 - β3)]
+
+            pop[i] = choice[rand(Categorical(prob))]
+        elseif pop[i] == 4
+            ## replace parent individual with offspring individual that has same culture with prob β3 
+            choice = [4, 3]
+            prob = [β4, (1 - β4)]
+
+            pop[i] = choice[rand(Categorical(prob))]
+        end
+    end
+    ## keep track of frequency of cultural variants and disequilibrium  over time
+    x1 = sum(pop .== 1)/n_pop
+    x2 = sum(pop .== 2)/n_pop
+    x3 = sum(pop .== 3)/n_pop
+    x4 = sum(pop .== 4)/n_pop
+
+    push!(y_abm, x1 + x3)
+
+    push!(D_abm, x1*x4 - x2*x3)
+end
