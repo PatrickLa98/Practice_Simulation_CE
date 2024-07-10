@@ -289,3 +289,24 @@ Equation13 = function(μ, v, β1, β2, β3, β4, γ1, γ2, γ3, γ4, x1, x2, x3,
 end
 
 
+##################################################################
+###### MODEL 3: VERTICAL TRANSMISSION WITH  SELECTION ############
+##################################################################
+
+## no mutation, γ values irrelevant
+
+## Equation14 Recursion of geno-culturetype frequencies
+Equation14 = function(β1, β2, β3, β4, x1, x2, x3, x4)
+    ## Equation 14e mean Fitness (ADDED ADDITIONAL BRACKETS THAT ARE MISSING IN PAPER)
+    W = 1 - (s*((1 - β1)*x1 + (1 - β3)*x3) + (s*β2*x2 + s*β4*x4))
+
+    ## Equation 14a-d - Recursions of gene-culture frequencies
+    next_x1 = (β1*x1 + (1 - β2)*x2)/W
+    next_x2 = ((1 - s)*((1 - β1)*x1 + β2*x2))/W
+    next_x3 = (β3*x3 + (1 - β4)*x4)/W
+    next_x4 = ((1 -s)*((1 - β3)*x3 + β4*x4))/W
+
+    return next_x1, next_x2, next_x3, next_x4
+end
+
+

@@ -125,7 +125,7 @@ for g in 1:n_gen
 
     for i in 1:length(pop)
 
-     ## replace parent genotypes according to mutation rates μ or values
+     ## replace parent genotypes according to mutation rates μ or v
         ## genotype A to a
         if pop[i] in [1, 2]
 
