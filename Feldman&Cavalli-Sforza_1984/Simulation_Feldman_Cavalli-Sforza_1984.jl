@@ -15,7 +15,7 @@ using Plots
 using Distributions
 
 ## source the equations from paper to this script
-cd("/Users/patricklauer/Documents/GitHub/Practice_Simulation_CE/Feldman&Cavalli-Sforza_1984/")
+cd("/Users/patricklauer/Documents/GitHub/Practice_Simulation_CE/Feldman&Cavalli-Sforza, 1984/")
 include("Equations_Feldman_Cavalli-Sforza_1984.jl")
 
 ## parameter settings
