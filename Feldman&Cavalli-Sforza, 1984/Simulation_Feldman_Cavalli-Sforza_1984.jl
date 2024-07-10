@@ -27,21 +27,21 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
     v = 0.001
 ## transmission coefficients
     ## A1 to A1
-    β1 = 0.7
+    β1 = 0.95
     ## A2 to A2
     β2 = 0.9 
     ## a1 to a1
-    β3 = 0.9
+    β3 = 0.6
     ## a2 to a2
-    β4 = 0.9
+    β4 = 0.95
     ## A1 to a1
-    γ1 = 0.6 
+    γ1 = 0.7 
     ## A2 to a2
-    γ2 = 0.6
+    γ2 = 0.9
     ## a1 to A1
-    γ3 = 0.6
+    γ3 = 0.9
     ## a2 to A2
-    γ4 = 0.6
+    γ4 = 0.9
 ## starting frequency of geno-culturetype
     ## A1
     x1 = 0.25
@@ -52,7 +52,7 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
     ## a2
     x4 = 0.25
 ## number of generations   
-    n_gen = 1000
+    n_gen = 500
 
 ##################################################################
 ###### MODEL 1: VERTICAL TRANSMISSION WITH NO SELECTION ##########
@@ -348,7 +348,6 @@ for g in 1:n_gen
     push!(D_abm2, x1*x4 - x2*x3)
 end
 
-
 ## PLOT
 
 ## Frequency of cultural variant 1 over time
@@ -391,8 +390,13 @@ plot!(
 ## no mutation, γ values irrelevant
 
 ## selection coefficient
-s = 0.1
+s = 0.2
 
+## reset gene-culturetypes
+x1 = 0.25
+x2 = 0.25
+x3 = 0.25
+x4 = 0.25
 ## Numerical Simulation
 ## Iterating through generations and recording cultural variant frequencies and gene-culture disequilibrium
     
@@ -413,6 +417,15 @@ s = 0.1
     end
 
 ## ABM of model 3
+#=
+1. randomly sampled parent id repoduces asexually, offspring always adopts its genotype (no mutation). 
+2. The cultural state of the parent is transmitted according to transmition coefficents.
+3. Offspring has chance to die if there is selection against the adopted cultural variant (survival probability 1 - s)
+If offspring dies step 1 - 3 repeat
+4. if offspring survives it enters the next_population
+5. iteration i moves to i + 1
+=#
+
 
 ## number of individuals
 n_pop = 1000
@@ -425,50 +438,119 @@ pop = genotype_culture[rand(Categorical(freq), n_pop)]
 ## initial frequency of cultural variant 1
 x1 = sum(pop .== 1)/n_pop
 x3 = sum(pop .== 3)/n_pop
-y_abm = [x1 + x3]
+y_abm3 = [x1 + x3]
 ## intital gene-culture disequilibrium
 x2 = sum(pop .== 2)/n_pop
 x4 = sum(pop .== 4)/n_pop
-D_abm = [x1*x4 - x2*x3]
-
+D_abm3 = [x1*x4 - x2*x3]
+# vector containing offspring individuals
+next_pop = zeros(Int64, length(pop))
 for g in 1:n_gen
 
-    for i in 1:length(pop)
+    i = 1
 
+    ## convert to while loop so parent id can be "reproduce" multiply times if offspring dies 
+    while i <= length(pop)
+
+        parent = rand(pop)
+        
+        
         ## replace or keep parents culture according to transmission coefficients
-        if pop[i] == 1
+        if parent == 1
             ## replace parent individual with offspring individual that has same culture with prob β1 
             choice = [1, 2]
             prob = [β1, (1 - β1)]
 
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 2
+            offspring = choice[rand(Categorical(prob))]
+        elseif parent == 2
             ## replace parent individual with offspring individual that has same culture with prob β2 
             choice = [2, 1]
             prob = [β2, (1 - β2)]
 
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 3
+            offspring = choice[rand(Categorical(prob))]
+        elseif parent == 3
             ## replace parent individual with offspring individual that has same culture with prob β3 
             choice = [3, 4]
             prob = [β3, (1 - β3)]
 
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 4
+            offspring = choice[rand(Categorical(prob))]
+        elseif parent == 4
             ## replace parent individual with offspring individual that has same culture with prob β3 
             choice = [4, 3]
             prob = [β4, (1 - β4)]
 
-            pop[i] = choice[rand(Categorical(prob))]
+            offspring = choice[rand(Categorical(prob))]
         end
+
+        ## assume that survival probability of ids with cultural variant1 is 1 and of ids with cultural variant2 is 1 - s
+        ## if an individual dies replace it with a new offspring (from randomly sampled parent)
+
+        if offspring in [2, 4]
+            
+          death = rand(Categorical(s, 1 - s)) # 1 = dies 2 = survives
+          
+          ## if offspring doesnt die replace parent with it and move to next parent individual
+            if death == 2  
+            
+                next_pop[i] = offspring
+                i += 1
+            else
+                continue
+        
+            end
+          ## if offspring has no maladaptive cultural variant it survives, replaces parent in population and loop goes to next parent individual  
+        elseif offspring in [1, 3]
+
+            next_pop[i] = offspring
+            i += 1
+        end
+
     end
+    ## replace parent with offspring generation
+    pop = next_pop
+
     ## keep track of frequency of cultural variants and disequilibrium  over time
     x1 = sum(pop .== 1)/n_pop
     x2 = sum(pop .== 2)/n_pop
     x3 = sum(pop .== 3)/n_pop
     x4 = sum(pop .== 4)/n_pop
 
-    push!(y_abm, x1 + x3)
+    push!(y_abm3, x1 + x3)
 
-    push!(D_abm, x1*x4 - x2*x3)
+    push!(D_abm3, x1*x4 - x2*x3)
 end
+
+
+## PLOT
+
+## Frequency of cultural variant 1 over time
+plot(
+    collect(0:n_gen), y_abm3,
+    line = (1, :red),
+    marker = (:circle, 4, :red),
+    xlabel = "time in generations",
+    ylabel = "frequency of cultural variant1",
+    label = "ABM",
+    title = "Model 3 - Cultural variant frequencies" 
+)
+plot!(
+    collect(0:n_gen), y_num3,
+    line = (1, :black),
+    marker = (:circle, 4, :black),
+    label = "Numeric")
+
+## Gene-culture disequilibrium over time
+plot(
+    collect(0:n_gen), D_abm3,
+    line = (1, :red),
+    marker = (:circle, 4, :red),
+    xlabel = "time in generations",
+    ylabel = "gene-culture disequilibrium",
+    label = "ABM",  
+    title = "Model 3 - Gene-culture disequilibrium"
+)
+plot!(
+    collect(0:n_gen), D_num3,
+    line = (1, :black),
+    marker = (:circle, 4, :black),
+    label = "Numeric")
