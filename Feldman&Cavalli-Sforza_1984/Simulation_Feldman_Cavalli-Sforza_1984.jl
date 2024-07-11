@@ -1,4 +1,4 @@
-## Goal model a dichotomous (2 variants)trait, genetic transmission diallellc haploid gene (A and a)
+## Goal: Model a dichotomous (2 variants)trait, genetic transmission diallellc haploid gene (A and a)
 ## Cultural transmission with 2 cultural states (indicated by subscripts 1 and 2):
     ## 1. vertical
     ## 2. oblique
@@ -15,7 +15,7 @@ using Plots
 using Distributions
 
 ## source the equations from paper to this script
-cd("/Users/patricklauer/Documents/GitHub/Practice_Simulation_CE/Feldman&Cavalli-Sforza, 1984/")
+cd("/Users/patricklauer/Documents/GitHub/Practice_Simulation_CE/Feldman&Cavalli-Sforza_1984/")
 include("Equations_Feldman_Cavalli-Sforza_1984.jl")
 
 ## parameter settings
@@ -181,7 +181,8 @@ end
 ## PLOT
 
 ## Frequency of cultural variant 1 over time
- plot(
+
+plot(
     collect(0:n_gen), y_abm,
     line = (1, :red),
     marker = (:circle, 4, :red),
@@ -192,8 +193,8 @@ end
 )
 plot!(
     collect(0:n_gen), y_num,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
 
 ## Gene-culture disequilibrium over time
@@ -208,8 +209,8 @@ plot(
 )
 plot!(
     collect(0:n_gen), D_num,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
 
 ##################################################################
@@ -362,8 +363,8 @@ plot(
 )
 plot!(
     collect(0:n_gen), y_num2,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
 
 ## Gene-culture disequilibrium over time
@@ -378,8 +379,8 @@ plot(
 )
 plot!(
     collect(0:n_gen), D_num2,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
 
 
@@ -390,7 +391,7 @@ plot!(
 ## no mutation, γ values irrelevant
 
 ## selection coefficient
-s = 0.2
+s = 0.1
 
 ## reset gene-culturetypes
 x1 = 0.25
@@ -418,12 +419,14 @@ x4 = 0.25
 
 ## ABM of model 3
 #=
-1. randomly sampled parent id repoduces asexually, offspring always adopts its genotype (no mutation). 
+1. randomly sampled parent repoduces asexually, offspring always adopts its genotype (no mutation). 
 2. The cultural state of the parent is transmitted according to transmition coefficents.
 3. Offspring has chance to die if there is selection against the adopted cultural variant (survival probability 1 - s)
 If offspring dies step 1 - 3 repeat
 4. if offspring survives it enters the next_population
 5. iteration i moves to i + 1
+6. as soon as the offspring population (next_population) reaches the number of individuals of parent population 
+   the offspring population replaces the parent population
 =#
 
 
@@ -445,11 +448,12 @@ x4 = sum(pop .== 4)/n_pop
 D_abm3 = [x1*x4 - x2*x3]
 # vector containing offspring individuals
 next_pop = zeros(Int64, length(pop))
+
 for g in 1:n_gen
 
     i = 1
 
-    ## convert to while loop so parent id can be "reproduce" multiply times if offspring dies 
+    ## while loop because parent id can be "reproduce" multiply times if offspring dies 
     while i <= length(pop)
 
         parent = rand(pop)
@@ -535,8 +539,8 @@ plot(
 )
 plot!(
     collect(0:n_gen), y_num3,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
 
 ## Gene-culture disequilibrium over time
@@ -551,6 +555,25 @@ plot(
 )
 plot!(
     collect(0:n_gen), D_num3,
-    line = (1, :black),
-    marker = (:circle, 4, :black),
+    line = (1, :blue),
+    marker = (:circle, 4, :blue),
     label = "Numeric")
+
+
+    ## to avoid exporting plots in weird .svg format use the following command (store plot as p first)
+    # savefig(p, "plot.png")
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
