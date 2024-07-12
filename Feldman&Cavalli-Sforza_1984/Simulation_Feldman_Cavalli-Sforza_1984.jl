@@ -160,7 +160,7 @@ for g in 1:n_gen
 
             pop[i] = choice[rand(Categorical(prob))]
         elseif pop[i] == 4
-            ## replace parent individual with offspring individual that has same culture with prob β3 
+            ## replace parent individual with offspring individual that has same culture with prob β4 
             choice = [4, 3]
             prob = [β4, (1 - β4)]
 
@@ -181,7 +181,6 @@ end
 ## PLOT
 
 ## Frequency of cultural variant 1 over time
-
 plot(
     collect(0:n_gen), y_abm,
     line = (1, :red),
@@ -446,7 +445,7 @@ y_abm3 = [x1 + x3]
 x2 = sum(pop .== 2)/n_pop
 x4 = sum(pop .== 4)/n_pop
 D_abm3 = [x1*x4 - x2*x3]
-# vector containing offspring individuals
+## vector containing offspring individuals
 next_pop = zeros(Int64, length(pop))
 
 for g in 1:n_gen
@@ -479,7 +478,7 @@ for g in 1:n_gen
 
             offspring = choice[rand(Categorical(prob))]
         elseif parent == 4
-            ## replace parent individual with offspring individual that has same culture with prob β3 
+            ## replace parent individual with offspring individual that has same culture with prob β4 
             choice = [4, 3]
             prob = [β4, (1 - β4)]
 
@@ -510,6 +509,7 @@ for g in 1:n_gen
         end
 
     end
+    
     ## replace parent with offspring generation
     pop = next_pop
 
