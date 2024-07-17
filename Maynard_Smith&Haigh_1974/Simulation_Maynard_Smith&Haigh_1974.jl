@@ -32,7 +32,7 @@ include("Equations_Maynard_Smith&Haigh_1974.jl")
 
 ## Numerical simulation to replicate Figure 1
 ## iterate through different recombination fraction (c) values
-recombination_fractions = [c for c in 0:0.001:0.01]
+recombination_fractions = [c for c in 0:0.0001:0.01]
 hitchhiking_effect = []
 approx_hitchhiking_effect = []
 
