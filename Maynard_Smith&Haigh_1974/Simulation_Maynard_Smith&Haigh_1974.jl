@@ -1,7 +1,6 @@
-## Goal: Model the hitch-hiking effect of a favourable gene
+## Goal: Model the haploid version of the hitch-hiking effect of a favourable gene
 ## numerical simulation and abm 
 #= 
-for now only do the haploid Model
 allele b subsitituted by favourable B
 neighbouring locus neutral alleles a and A 
 closer neighbouring loci are more likely to be "hitchhiked" denoted as distance/recombination fraction c (smaller values mean stronger hitchhiking effects)
@@ -34,9 +33,9 @@ include("Equations_Maynard_Smith&Haigh_1974.jl")
 ## Numerical simulation to replicate Figure 1
 ## iterate through different recombination fraction (c) values
 recombination_fractions = [c for c in 0:0.001:0.01]
-
 hitchhiking_effect = []
 approx_hitchhiking_effect = []
+
 for c in recombination_fractions
 
     push!(hitchhiking_effect, Equation8(c, p0, s, R0))
@@ -53,7 +52,7 @@ plot(recombination_fractions, hitchhiking_effect,
 plot!(recombination_fractions, approx_hitchhiking_effect,
     label = "approximation")
 
-
+## ABM to replicate Figure 1
         
 
 

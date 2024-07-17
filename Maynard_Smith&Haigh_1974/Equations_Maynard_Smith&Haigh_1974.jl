@@ -1,8 +1,7 @@
-## Goal: Model the hitch-hiking effect of a favourable gene
-## Write down equations from paper
+## Goal: Model the haploid version of the hitch-hiking effect of a favourable gene
+## Note down equations from paper
 
 #= 
-for now only do the haploid Model
 allele b subsitituted by favourable B
 neighbouring locus neutral alleles a and A 
 closer neighbouring loci are more likely to be "hitchhiked" denoted as distance/recombination fraction c (smaller values mean stronger hitchhiking effects)
@@ -24,8 +23,6 @@ Equation0 = function(p, Q, R, s, c)
 
                   return next_freqAB
 end
-
-Equation0(p0, Q0, R0, s, c)
 
 ## Equation 1: frequency of AB in generation n + 1 (simplified form of Equation 0)
 Equation1 = function(p, Q, R, s, c)
