@@ -54,6 +54,24 @@ include("Equations_Feldman_Cavalli-Sforza_1984.jl")
 ## number of generations   
     n_gen = 500
 
+## Create a Dictionary for transmission coefficients ("parent-genophenotype offspring-genophenotype")
+Transmission = Dict{String, Float64}("1 1" => β1, 
+"2 2" => β2,
+"3 3" => β3, 
+"4 4" => β4, 
+"1 3" => γ1, 
+"2 4" => γ2, 
+"3 1" => γ3, 
+"4 2" => γ4,
+"1 2" => 1 - β1, 
+"2 1" => 1 - β2,
+"3 4" => 1 - β3, 
+"4 3" => 1 - β4, 
+"1 4" => 1 - γ1, 
+"2 3" => 1 - γ2, 
+"3 2" => 1 - γ3, 
+"4 1" => 1 - γ4)
+
 ##################################################################
 ###### MODEL 1: VERTICAL TRANSMISSION WITH NO SELECTION ##########
 ##################################################################
@@ -121,52 +139,49 @@ x2 = sum(pop .== 2)/n_pop
 x4 = sum(pop .== 4)/n_pop
 D_abm = [x1*x4 - x2*x3]
 
+## separate genotype and culture transmission, 2 step process:
+## 1. genotype frequency of gen i similar to gen i - 1, differences due to mutation rates
+
 for g in 1:n_gen
 
-    for i in 1:length(pop)
+    pop_new_gen = zeros(Int64, length(pop))
 
-     ## replace parent genotypes according to mutation rates μ or v
+    for i in 1:length(pop)
+        ## replace "parent" generation genotypes according to mutation rates μ or v
         ## genotype A to a
         if pop[i] in [1, 2]
 
-            choice = [pop[i], pop[i] + 2] # either remain same genotype or convert genotype (culture remains the same)
+            choice = ["A","a"] # either remain same genotype or convert genotype (culture remains the same)
             prob = [1 - μ, μ]
-            pop[i] = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
         ## genotype a to A
         elseif pop[i] in [3, 4]
 
-            choice = [pop[i], pop[i] - 2] # either remain same genotype or convert genotype (culture remains the same)
+            choice = ["a", "A"] # either remain same genotype or convert genotype (culture remains the same)
             prob = [1 - v, v]
-            pop[i] = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
         end
 
-     ## replace or keep parents culture according to transmission coefficients
-        if pop[i] == 1
-            ## replace parent individual with offspring individual that has same culture with prob β1 
-            choice = [1, 2]
-            prob = [β1, (1 - β1)]
+     ## add culture to the produced genotype
+        if genotype == "A"
+          ## if id has genotype A it can adapt genophenotype 1 or 2 (copies from parent according to transmission coefficents)
+          choices =  [string(pop[i], " ", 1), string(pop[i], " ", 2)]
+          prob = [Transmission[choices[1]], Transmission[choices[2]]]
+          
+          pop_new_gen[i] = [1, 2][rand(Categorical(prob))]   
 
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 2
-            ## replace parent individual with offspring individual that has same culture with prob β2 
-            choice = [2, 1]
-            prob = [β2, (1 - β2)]
+        elseif genotype == "a"
+            ## if id has genotype a it can adapt genophenotype 3 or 4 (copies from parent according to transmission coefficents)
+            choices =  [string(pop[i], " ", 3), string(pop[i], " ", 4)]
+            prob = [Transmission[choices[1]], Transmission[choices[2]]]
+            
+            pop_new_gen[i] = [3, 4][rand(Categorical(prob))]
+        end    
 
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 3
-            ## replace parent individual with offspring individual that has same culture with prob β3 
-            choice = [3, 4]
-            prob = [β3, (1 - β3)]
-
-            pop[i] = choice[rand(Categorical(prob))]
-        elseif pop[i] == 4
-            ## replace parent individual with offspring individual that has same culture with prob β4 
-            choice = [4, 3]
-            prob = [β4, (1 - β4)]
-
-            pop[i] = choice[rand(Categorical(prob))]
-        end
     end
+
+    ## update generation after all ids are done learning from parent generation
+    pop = pop_new_gen
     ## keep track of frequency of cultural variants and disequilibrium  over time
     x1 = sum(pop .== 1)/n_pop
     x2 = sum(pop .== 2)/n_pop
@@ -257,23 +272,6 @@ plot!(
 
 ## ABM of model 2
 
-## Create a Dictionary for transmission coefficients ("parent-genophenotype offspring-genophenotype")
-Transmission = Dict{String, Float64}("1 1" => β1, 
-                      "2 2" => β2,
-                      "3 3" => β3, 
-                      "4 4" => β4, 
-                      "1 3" => γ1, 
-                      "2 4" => γ2, 
-                      "3 1" => γ3, 
-                      "4 2" => γ4,
-                      "1 2" => 1 - β1, 
-                      "2 1" => 1 - β2,
-                      "3 4" => 1 - β3, 
-                      "4 3" => 1 - β4, 
-                      "1 4" => 1 - γ1, 
-                      "2 3" => 1 - γ2, 
-                      "3 2" => 1 - γ3, 
-                      "4 1" => 1 - γ4)
 ## number of individuals
 n_pop = 1000
 ## Genotype-Culture Combinations
