@@ -139,30 +139,29 @@ x2 = sum(pop .== 2)/n_pop
 x4 = sum(pop .== 4)/n_pop
 D_abm = [x1*x4 - x2*x3]
 
-## separate genotype and culture transmission, 2 step process:
-## 1. genotype frequency of gen i similar to gen i - 1, differences due to mutation rates
-
+## loop through generations and individuals in population and replace parent with offspring generation
+## separate genotype and culture transmission, to be a 2 step process:
 for g in 1:n_gen
 
     pop_new_gen = zeros(Int64, length(pop))
 
     for i in 1:length(pop)
-        ## replace "parent" generation genotypes according to mutation rates μ or v
+        ## 1. replace "parent" generation genotypes according to mutation rates μ or v
         ## genotype A to a
         if pop[i] in [1, 2]
 
-            choice = ["A","a"] # either remain same genotype or convert genotype (culture remains the same)
+            choice = ["A","a"] # either remain same genotype or convert genotype 
             prob = [1 - μ, μ]
-            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+            genotype = choice[rand(Categorical(prob))] # convert offspring to genotype a with probability μ
         ## genotype a to A
         elseif pop[i] in [3, 4]
 
-            choice = ["a", "A"] # either remain same genotype or convert genotype (culture remains the same)
+            choice = ["a", "A"] # either remain same genotype or convert genotype 
             prob = [1 - v, v]
-            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+            genotype = choice[rand(Categorical(prob))] # convert offspring to genotype A with probability v
         end
 
-     ## add culture to the produced genotype
+     ## 2. add culture to the produced genotype
         if genotype == "A"
           ## if id has genotype A it can adapt genophenotype 1 or 2 (copies from parent according to transmission coefficents)
           choices =  [string(pop[i], " ", 1), string(pop[i], " ", 2)]
@@ -289,15 +288,14 @@ x2 = sum(pop .== 2)/n_pop
 x4 = sum(pop .== 4)/n_pop
 D_abm2 = [x1*x4 - x2*x3]
 
-## separate genotype and culture transmission, 2 step process:
-## 1. genotype frequency of gen i similar to gen i - 1, differences due to mutation rates
-
+## loop through generations and individuals in population and replace parent with offspring generation
+## separate genotype and culture transmission, to be a 2 step process:
 for g in 1:n_gen
 
     pop_new_gen = zeros(Int64, length(pop))
 
     for i in 1:length(pop)
-        ## replace "parent" generation genotypes according to mutation rates μ or v
+        ## 1. replace "parent" generation genotypes according to mutation rates μ or v
         ## genotype A to a
         if pop[i] in [1, 2]
 
@@ -309,10 +307,10 @@ for g in 1:n_gen
 
             choice = ["a", "A"] # either remain same genotype or convert genotype (culture remains the same)
             prob = [1 - v, v]
-            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype a with probability μ
+            genotype = choice[rand(Categorical(prob))]    # convert offspring to genotype A with probability v
         end
 
-     ## add culture to the produced genotype, by randomly selecting an individual from "parent" generation
+     ## 2. add culture to the produced genotype, by randomly selecting an individual from "parent" generation
         ## sample from parent gen
         model = rand(pop)
             
