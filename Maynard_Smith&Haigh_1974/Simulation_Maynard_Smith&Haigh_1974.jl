@@ -52,21 +52,56 @@ plot(recombination_fractions, hitchhiking_effect,
 plot!(recombination_fractions, approx_hitchhiking_effect,
     label = "approximation")
 
-## ABM to replicate Figure 1
+## transform deterministic system to stochastic system 
+## use ABM to replicate Figure 1
 
 #=
 * notation: AB = 1, Ab = 2, aB = 3, ab = 4
 * starting population: N - 1 individuls sampled as 2 or 4 (proportion dependent on R0 value)
                      0 individuals 1
                      1 indiviudal 3
-* individual with genotype 3 will spread and depending on strength of recombination fraction c 1 will also increase
+* individual with genotype 3 will spread and depending on strength selection and of recombination fraction c 1 will also increase
 * run till all individuals are either 1 or 3. 
 * proportion of predefined R0 to sum 3 individuals at the end is Qinf/R0
 =#
 
-## population of N - 1 individuals with b allele(denotetd as 0)        
-pop = repeat([0], N - 1)
-## 1 individual mutates and recieves B allele
-push!(pop, 1)
+## create initial population
+## asign types 2 (Ab) and 4 (ab) to N-1 individuals proportionally to R0 and 1 - R0
+pop = [2, 4][rand(Categorical([R0, (1 - R0)]), N -1)]
+## add mutated individual with type 3 (aB)
+push!(pop, 3)
 
+## parent population reproduces by randomly sampling through parent generation and copying genotype (no mutation)
+## offspring survives 100 % if B and survives 1 - s if B
+## if offspring dies a new random parent is sampled
+
+
+##stopped here:  need to add recombination fraction c in loop that if increase also increases probability of 1 instead of 3
+
+i = 1
+new_pop = []
+while i <= length(pop)
+
+   offspring = rand(pop) # randomly sample parent from previous pop to reproduce
+
+    if offspring in [2, 4]  # offspring has change of dying if unfavourable allele b
+
+     survives = [0, 1][rand(Categorical([s, (1 - s)]), 1)]
+
+        if survives == [1]
+            
+            push!(new_pop, offspring)
+            i += 1
+        elseif survives == [0]
+            continue
+        end
+    elseif offspring in [1, 3]
+
+        push!(new_pop, offspring)
+        i += 1
+    end
+end
+
+## replace parent gen
+pop = new_pop
 
