@@ -19,7 +19,7 @@ include("Equations_Maynard_Smith&Haigh_1974.jl")
 
 ## parameter settings
     ## Population size = n
-    N = 10^2
+    N = 10^4
     ## initial frequency of favourable allele B in population of N individuals = p0
     p0 = 1/N
     ## initial proportion of A in chromosomes containing B = Q
@@ -46,14 +46,6 @@ for c in recombination_fractions
     
 end
 
-plot(recombination_fractions, hitchhiking_effect,
-    ylims = (0,1),
-    label = "'exact' approach",
-    xlabel = "recombination fraction",
-    ylabel = "hitch-hiking effect")
-plot!(recombination_fractions, approx_hitchhiking_effect,
-    label = "approximation")
-
 ## 2. ABM to replicate Figure 1
 ## transform deterministic system to stochastic system 
 
@@ -69,8 +61,6 @@ plot!(recombination_fractions, approx_hitchhiking_effect,
 
 hitchhicking_ABM = function (N, R0, c, s)    
 
-    ## number of generations 
-    generations = 100
     ## measure if favourable allele B becomes fixed
     fixed = 0
     ## measure the number of replicates need for B to become fixed
@@ -78,10 +68,9 @@ hitchhicking_ABM = function (N, R0, c, s)
     ## define result fixed pop outside of while loop (because julia stores it as local object otherwise)
     fixed_pop = []
 
-    ## parent population reproduces by randomly sampling through parent generation and copying genotype (no further mutation)
+    ## sample individuals from parent population to reproduce, ids with B more likely to be selected
     ## the neighbouring loci may recombine with recombination fraction c
-    ## offspring survives 100 % if B and survives 1 - s if b
-    ## if offspring dies a new random parent is sampled
+
 
 
     ## REPLICATE SIMULATION TILL B FIXED
@@ -89,55 +78,48 @@ hitchhicking_ABM = function (N, R0, c, s)
 
         ## create initial population
         ## asign types 2 (Ab) and 4 (ab) to N-1 individuals proportionally to R0 and 1 - R0
-        pop = [2, 4][rand(Categorical([R0, (1 - R0)]), N -1)]
+        pop = [2, 4][rand(Categorical([R0, (1 - R0)]), N - 1)]
         ## add mutated individual with type 3 (aB)
         push!(pop, 3)
 
-        ## LOOP THROUGH PREDEFINED GENERATIONS (TO ENSURE ABSORPTION STATE IS REACHED) 
-        for n in 1:generations
+        ## LOOP THROUGH GENERATIONS UNTILL ABSORPTION STATE IS REACHED (B  fixed or B extinct)
+        while (sum(pop .== 1) + sum(pop .== 3)) != N && (sum(pop .== 1) + sum(pop .== 3)) != 0
 
-            i = 1
             new_pop = []
         
-            ## LOOP THROUGH PARENT-POPULATION TILL THE SAME NUMBER OF OFFSPRING SURVIVES AS PRESENT IN PARENT-POPULATION
-            while i <= length(pop)
-
-                offspring = rand(pop) # randomly sample parent from previous pop to reproduce
+                ## SELECTION
+                ## possible genotypes
+                genotypes = [1, 2, 3, 4]
+                ## weights for reproduction
+                weights = [1, 1 - s, 1, 1 - s]
+                ## frequency of different genotypes
+                freq = [sum(pop .== 1)/N, sum(pop .== 2)/N, sum(pop .== 3)/N, sum(pop .== 4)/N]
+                ## unnormalized probability of reproduction
+                prob_offspring = [weights[i]*freq[i] for i in genotypes]
+                ## normalized probability of reproduction
+                norm_prob_offspring = [prob_offspring[i]/sum(prob_offspring) for i in genotypes]
+                ## randomly sample parent from previous pop to reproduce, probabilities according to s
+                offspring = rand(Categorical(norm_prob_offspring), N)
 
                 ## RECOMBINATION
-                ## offsprings genotype can recombine depending on recombination fraction c
-                ## for simplicity and since there is selection for B, only allow recombination of A and a (hence + or - 2 jumps)
-                if offspring in [1, 2]
+                for i in 1:length(offspring)
+                    ## offsprings genotype can recombine depending on recombination fraction c
+                    ## for simplicity and since there is selection for B, only allow recombination of A and a (hence + or - 2 jumps)
 
-                    offspring = [offspring, offspring + 2][rand(Categorical([(1 - c), c]), 1)][1]
+                    if offspring[i] in [1, 2]
 
-                elseif offspring in [3, 4]
-                    
-                    offspring = [offspring, offspring - 2][rand(Categorical([(1 - c), c]), 1)][1]
+                        offspring[i] = [offspring[i], offspring[i] + 2][rand(Categorical([(1 - c), c]), 1)][1]
 
-                end
-
-                ## SELECTION
-                if offspring in [2, 4]  # offspring has change of dying if unfavourable allele b
-
-                    survives = [0, 1][rand(Categorical([s, (1 - s)]), 1)]
-
-                    if survives == [1]
+                    elseif offspring[i] in [3, 4]
                         
-                        push!(new_pop, offspring)
-                        i += 1
-                    elseif survives == [0]
-                        continue
-                    end
-                elseif offspring in [1, 3]
+                        offspring[i] = [offspring[i], offspring[i] - 2][rand(Categorical([(1 - c), c]), 1)][1]
 
-                    push!(new_pop, offspring)
-                    i += 1
+                    end
+
                 end
-            end
 
             ## replace parent gen
-            pop = new_pop
+            pop = offspring
 
         end
 
@@ -149,10 +131,34 @@ hitchhicking_ABM = function (N, R0, c, s)
             fixed_pop = push!(fixed_pop, pop)
         end
     end
+   
     return fixed_pop
 end
 
 
-test = hitchhicking_ABM(N, R0, c , s)
+## stochastic simulation of hitchhiking effect under varying recombination fractions
+hitchhiking_effect_abm = []
+recombination_fractions = [c for c in 0:0.0001:0.01]
 
-sum(test .== 1)
+for c in recombination_fractions
+
+    pop = hitchhicking_ABM(N, R0, c , s)[1]
+    Q_inf_abm = sum(pop .== 1)/N
+    push!(hitchhiking_effect_abm, (Q_inf_abm/R0))
+ 
+end
+
+plot(recombination_fractions, hitchhiking_effect_abm)
+
+
+## PLOT
+
+plot(recombination_fractions, hitchhiking_effect,
+    ylims = (0,1.3),
+    label = "'exact' approach",
+    xlabel = "recombination fraction",
+    ylabel = "hitch-hiking effect")
+        plot!(recombination_fractions, approx_hitchhiking_effect,
+            label = "approximation")
+            plot!(recombination_fractions, hitchhiking_effect_abm,
+                label = "stochastic model")
