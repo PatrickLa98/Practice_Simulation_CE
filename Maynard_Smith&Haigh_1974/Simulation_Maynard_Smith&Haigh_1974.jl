@@ -54,8 +54,8 @@ end
 * starting population: N - 1 individuls sampled as 2 (Ab) or 4 (ab) (proportion dependent on R0 value)
                      0 individuals with genotype 1 (AB)
                      1 indiviudal with genotype 3 (aB)
-* individual with genotype 3 will spread and depending on strength selection and of recombination fraction c 1 will also increase
-* run till all individuals are either 1 or 3. 
+* individual with genotype 3 has fitness advantage and, if not lost by random events, will spread. Dependent on the recombination fraction c genotype 1 will also increase
+* run till all individuals are either 1 or 3. (variant B fixed)
 * proportion of predefined R0 to sum 3 individuals at the end is Qinf/R0
 =#
 
@@ -64,7 +64,7 @@ hitchhicking_ABM = function (N, R0, c, s)
     ## measure if favourable allele B becomes fixed
     fixed = 0
     ## measure the number of replicates need for B to become fixed
-    replicate = 0
+    #replicate = 0
     ## define result fixed pop outside of while loop (because julia stores it as local object otherwise)
     fixed_pop = []
 
@@ -123,7 +123,8 @@ hitchhicking_ABM = function (N, R0, c, s)
 
         end
 
-        replicate += 1
+        # replicate += 1  # Not used as function output
+
         ## check if favourable allele B is fixed in population
         if sum(pop .== 1) + sum(pop .== 3) == N
 
@@ -152,13 +153,13 @@ plot(recombination_fractions, hitchhiking_effect_abm)
 
 
 ## PLOT
-
 plot(recombination_fractions, hitchhiking_effect,
-    ylims = (0,1.3),
+    ylims = (0,1.2),
     label = "'exact' approach",
     xlabel = "recombination fraction",
     ylabel = "hitch-hiking effect")
         plot!(recombination_fractions, approx_hitchhiking_effect,
             label = "approximation")
-            plot!(recombination_fractions, hitchhiking_effect_abm,
-                label = "stochastic model")
+                plot!(recombination_fractions, hitchhiking_effect_abm,
+                    label = "stochastic model")
+
