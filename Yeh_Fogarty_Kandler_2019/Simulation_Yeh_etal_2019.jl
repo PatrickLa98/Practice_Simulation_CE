@@ -15,26 +15,22 @@
     * conformity-biased (only one trait modeled no burn in needed)
         
 record variant frequencies at each timestep
-
 =#
-
-
 
 using Plots
 using Distributions
-
 
 ## 1. Initiate population
 
 ## individuals 
 n = 10
-## traits
-traits = [1, 2, 3, 4, 5]
+## number of traits
+traits = 5
 ## variants
 variants = [1, 2, 3, 4]
 
 ## store information in matrix
-pop = zeros(Int64, n, length(traits))
+pop = zeros(Int64, n, traits)
 ## randomly asign variants to traits for n individuals
 for i in 1:n 
 
@@ -44,10 +40,23 @@ end
 
 ## 2. Initiate array for links
 
-
-
+links_array = zeros(Int64, traits, traits, n) ## rows and columns are traits, 3rd dimension are individuals
 
 ## 3. Iterate through timesteps
+timesteps = 100
+
+for i in 1:timesteps
+
+
+
+
+    
+
+
+
+
+end
+
 
 
         
