@@ -15,12 +15,14 @@
     * conformity-biased (only one trait modeled no burn in needed)
         
 record variant frequencies at each timestep
+
+Questions: can links only break during the transmission process? (3.2.2)
 =#
 
 using Plots
 using Distributions
 
-## 1. Initiate population
+## parameter settings 
 
 ## individuals 
 n = 10
@@ -28,6 +30,14 @@ n = 10
 traits = 5
 ## variants
 variants = [1, 2, 3, 4]
+## timesteps
+timesteps = 100
+## probability of successful copying of variant
+c = 0.99
+
+
+
+## 1. Initiate population
 
 ## store information in matrix
 pop = zeros(Int64, n, traits)
@@ -43,22 +53,48 @@ end
 links_array = zeros(Int64, traits, traits, n) ## rows and columns are traits, 3rd dimension are individuals
 
 ## 3. Iterate through timesteps
-timesteps = 100
 
 #for i in 1:timesteps
 
-    ## 3.1 choose interaction partner (unbiased)
     ids_seq = collect(1:n)
     interacts_with = Int[]
 
-    for id in 1:n
+    new_pop = deepcopy(pop)
 
-        potential_interaction_partners = setdiff(ids_seq, id) # exclude possibility to interact with themselves
+    #for id in 1:n
+
+        ## 3.1 choose interaction partner
+        potential_interaction_partners = setdiff(ids_seq, id) # exclude possibility to interact with oneselve
         push!(interacts_with, rand(potential_interaction_partners, 1)[1])
-    
-    end
+        
+        ## 3.2 choose trait and copy respective variant 
+        traits_of_interacting_individual = pop[interacts_with[id],:]
+        chosen_trait = rand(1:traits, 1)[1]    
+        variant_of_chosen_trait_of_interactant = traits_of_interacting_individual[chosen_trait]
+        variant_of_chosen_trait_of_focalid = pop[id, chosen_trait]
 
-    ## 3.2 randomly choose a trait to copy from interaction partner
+            ## 3.2.1 copying either successful (adapt interactants variant) or unsuccesful (keep own variant)
+            new_variant = [variant_of_chosen_trait_of_interactant, variant_of_chosen_trait_of_focalid][rand(Categorical([c, (1 - c)]), 1)][1]
+            
+            ## store new variant
+            new_pop[id, chosen_trait] = new_variant
+            
+            ## 3.2.2 check if variant is linked and copy link with prob 1 - b ( + copy variant of the linked traits)
+
+            links = links_array[chosen_trait,:,interacts_with[id]]
+
+            for l in 1:traits
+                
+                if links[l] == 1
+                    
+
+
+
+            end
+
+    #end
+
+    pop = new_pop
 
 
 
